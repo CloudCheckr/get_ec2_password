@@ -1,10 +1,7 @@
-# This is a sample Python script.
+# get_ec2_password
 
-# Press ⌃R to execute it or replace it with your code.
-# Press Double ⇧ to search everywhere for classes, files, tool windows, actions, and settings.
-# Use this code snippet in your app.
-# If you need more information about configurations or implementing the sample code, visit the AWS docs:
-# https://aws.amazon.com/developers/getting-started/python/
+# Gets the windows password from a pem file stored in Secrets Manage, reducing the need for locally stored pem files.
+# rslocum 10/29/2020
 
 import argparse
 import os
