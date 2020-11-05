@@ -1,5 +1,5 @@
 import re, os, boto3
-
+from botocore.exceptions import ProfileNotFound
 
 def start_client(service, profile, region):
     try:
@@ -10,8 +10,8 @@ def start_client(service, profile, region):
             region_name=region
         )
         return client
-    except:
-        print("Something bad happened")
+    except ProfileNotFound as e:
+        raise e
 
 
 def gimme_creds_connection(profile):
@@ -42,7 +42,10 @@ def sm_error_responses(error_response):
             raise Exception("InvalidRequestException")
         elif error_response.response['Error']['Code'] == 'ResourceNotFoundException':
             # We can't find the resource that you asked for.
-            raise Exception("ResourceNotFoundException")
+            raise Exception("PEM Secret Not Found")
+        elif error_response.response['Error']['Code'] == 'ResourceExistsException':
+            # We can't find the resource that you asked for.
+            raise Exception("PEM Secret Already Exist")
         else:
             raise Exception(error_response.response)
     else:

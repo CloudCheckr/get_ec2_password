@@ -41,12 +41,11 @@ def get_secret(client, pem_file):
             e = "Invalid Pem Format"
             print(e)
             raise e
-        secret_dict = json.loads(secret_data)
-        formatted_pem = secret_dict['PrivateKey'] \
-            .replace('BEGIN RSA PRIVATE KEY-----', 'BEGIN RSA PRIVATE KEY-----\n') \
-            .replace('-----END RSA PRIVATE KEY', '\n-----END RSA PRIVATE KEY')
-        key = rsa.PrivateKey.load_pkcs1(formatted_pem)
-        return key
+        if isinstance(secret_data, str):
+            return rsa.PrivateKey.load_pkcs1(secret_data)
+        else:
+            e = "Unexpected PEM Format, use upload_pem_secret to create0"
+            raise Exception(e)
 
 
 # get pem key from ec2

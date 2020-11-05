@@ -14,6 +14,7 @@ def parse():
 
     parser.add_argument("-f", "--filename", help="File to upload")
     parser.add_argument("-d", "--directory", help="File location")
+    parser.add_argument("-k", "--kmskey", help="KMS Key to use, if not default")
     parser.add_argument("-p", "--profile", help="aws profile to use")
     parser.add_argument("-g", "--gac-profile", help="Run gimme-aws-creds against given profile")
     parser.add_argument("-r", "--region", help="aws region")
@@ -27,24 +28,37 @@ def get_pem_data(location, pem_name):
     except OSError as e:
         raise e
     else:
-        return pem_data
+        return pem_data.read()
 
 
 def create_secret(client, pem_data, pem_name, key):
     try:
         secret_name = 'pem/' + pem_name.replace('.pem', '')
-        response = client.create_secret(
-            Name=secret_name,
-            Description='Pem File ' + pem_name,
-            KmsKeyId=key,
-            SecretString=pem_data,
-            Tags=[
-                {
-                    'Key': 'Type',
-                    'Value': 'PEM File'
-                },
-            ]
-        )
+        if key:
+            response = client.create_secret(
+                Name=secret_name,
+                Description='Pem File ' + pem_name,
+                KmsKeyId=key,
+                SecretString=pem_data,
+                Tags=[
+                    {
+                        'Key': 'Type',
+                        'Value': 'PEM File'
+                    },
+                ]
+            )
+        else:
+            response = client.create_secret(
+                Name=secret_name,
+                Description='Pem File ' + pem_name,
+                SecretString=pem_data,
+                Tags=[
+                    {
+                        'Key': 'Type',
+                        'Value': 'PEM File'
+                    },
+                ]
+            )
     except ClientError as e:
         sm_error_responses(e)
     else:
@@ -72,7 +86,7 @@ def main(args):
     if args.kmskey:
         kms = args.kmskey
     else:
-        kms = 'aws/secretsmanager'
+        kms = None
 
     sm_session = start_client('secretsmanager', aws_profile, aws_region)
     pem_contents = get_pem_data(path, args.filename)
