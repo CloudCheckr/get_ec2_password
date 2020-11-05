@@ -4,13 +4,12 @@
 # rslocum 10/29/2020
 
 import argparse
-import os
-import re
-import json
-import boto3
 import base64
+import json
+import os
 import rsa
 from botocore.exceptions import ClientError
+from password_functions import start_client, gimme_creds_connection, sm_error_responses
 
 
 def parse():
@@ -25,19 +24,6 @@ def parse():
     return parser.parse_args()
 
 
-def start_client(service, profile, region):
-    try:
-        # Create a ACM client
-        session = boto3.session.Session(profile_name=profile)
-        client = session.client(
-            service_name=service,
-            region_name=region
-        )
-        return client
-    except:
-        print("Something bad happened")
-
-
 def get_secret(client, pem_file):
     secret_name = 'pem/' + pem_file
     try:
@@ -45,29 +31,16 @@ def get_secret(client, pem_file):
             SecretId=secret_name
         )
     except ClientError as e:
-        if e.response['Error']['Code'] == 'InternalServiceErrorException':
-            # An error occurred on the server side.
-            print("InternalServiceErrorException")
-            raise e
-        elif e.response['Error']['Code'] == 'InvalidParameterException':
-            # You provided an invalid value for a parameter.
-            print("InvalidParameterException")
-            raise e
-        elif e.response['Error']['Code'] == 'InvalidRequestException':
-            # You provided a parameter value that is not valid for the current state of the resource.
-            print("InvalidRequestException")
-            raise e
-        elif e.response['Error']['Code'] == 'ResourceNotFoundException':
-            # We can't find the resource that you asked for.
-            print("ResourceNotFoundException")
-            raise e
+        sm_error_responses(e)
     else:
         # Secrets Manager decrypts the secret value using the associated KMS CMK
         # Depending on whether the secret was a string or binary, only one of these fields will be populated
         if 'SecretString' in get_secret_value_response:
             secret_data = get_secret_value_response['SecretString']
         else:
-            secret_data = get_secret_value_response['SecretBinary']
+            e = "Invalid Pem Format"
+            print(e)
+            raise e
         secret_dict = json.loads(secret_data)
         formatted_pem = secret_dict['PrivateKey'] \
             .replace('BEGIN RSA PRIVATE KEY-----', 'BEGIN RSA PRIVATE KEY-----\n') \
@@ -108,12 +81,7 @@ def main(args):
     if args.profile:
         aws_profile = args.profile
     elif args.gac_profile:
-        stream = os.popen('gimme-aws-creds -p %s' % args.gac_profile)
-        output = stream.read()
-        aws_profile = re.search('(.*)Written profile (.*) to (.*)', output).group(2)
-        print("profile used: %s" % aws_profile)
-        stream.close()
-
+        aws_profile = gimme_creds_connection(args.gac_profile)
     else:
         aws_profile = 'default'
 
