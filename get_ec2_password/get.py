@@ -3,25 +3,11 @@
 # Gets the windows password from a pem file stored in Secrets Manage, reducing the need for locally stored pem files.
 # rslocum 10/29/2020
 
-import argparse
 import base64
-import json
 import os
 import rsa
 from botocore.exceptions import ClientError
-from password_functions import start_client, gimme_creds_connection, sm_error_responses
-
-
-def parse():
-    """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Script to retrieve EC2 passwords")
-
-    parser.add_argument("-i", "--instanceid", help="instance id of ec2 instance")
-    parser.add_argument("-p", "--profile", help="aws profile to use")
-    parser.add_argument("-g", "--gac-profile", help="Run gimme-aws-creds against given profile")
-    parser.add_argument("-r", "--region", help="aws region")
-
-    return parser.parse_args()
+from get_ec2_password.shared import start_client, sm_error_responses
 
 
 def get_secret(client, pem_file):
@@ -76,31 +62,16 @@ def get_ec2_password(client, pem_file, instance_id):
     return str(password, 'utf-8')
 
 
-def main(args):
-    if args.profile:
-        aws_profile = args.profile
-    elif args.gac_profile:
-        aws_profile = gimme_creds_connection(args.gac_profile)
-    else:
-        aws_profile = 'default'
+def run(conf):
 
-    if args.region:
-        aws_region = args.region
-    else:
-        aws_region = os.getenv('AWS_DEFAULT_REGION')
-
-    ec2_session = start_client('ec2', aws_profile, aws_region)
-    sm_session = start_client('secretsmanager', aws_profile, aws_region)
-    pem_file = get_pem_name(ec2_session, args.instanceid)
+    ec2_session = start_client('ec2', conf.aws_profile, conf.aws_region)
+    sm_session = start_client('secretsmanager', conf.aws_profile, conf.aws_region)
+    pem_file = get_pem_name(ec2_session, conf.instanceid)
     pem_contents = get_secret(sm_session, pem_file)
-    ec2_password = get_ec2_password(ec2_session, pem_contents, args.instanceid)
+    ec2_password = get_ec2_password(ec2_session, pem_contents, conf.instanceid)
 
     print(ec2_password)
 
 
-if __name__ == "__main__":
-    try:
-        main(parse())
-    except KeyboardInterrupt:
-        print("KeyboardInterrupt")
+
 
