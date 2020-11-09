@@ -1,9 +1,9 @@
-from setuptools import setup, find_packages
+from setuptools import setup
 
 setup(
     name='get_ec2_password',
     version='0.1.1',
-    packages=find_packages(include=['get_ec2_password', 'password_functions', 'upload_pem_secret']),
+    package_dir={'': 'get_ec2_password'},
     install_requires=[
         'rsa',
         'argparse',
@@ -14,5 +14,6 @@ setup(
     license='',
     author='Rob Slocum',
     author_email='rob.e.slocum@gmail.com',
-    description='Scripts to retrieve EC2 passwords from AWS Secrets Manager'
+    description='Scripts to retrieve EC2 passwords from AWS Secrets Manager',
+    console=['main.py']
 )

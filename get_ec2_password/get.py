@@ -4,7 +4,6 @@
 # rslocum 10/29/2020
 
 import base64
-import os
 import rsa
 from botocore.exceptions import ClientError
 from get_ec2_password.shared import start_client, sm_error_responses
