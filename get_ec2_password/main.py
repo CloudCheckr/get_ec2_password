@@ -69,6 +69,7 @@ def main(args):
             kms = args.kmskey
         else:
             kms = None
+        conf.filename = args.filename
         conf.path = path
         conf.kms = kms
         upload.run(conf)
