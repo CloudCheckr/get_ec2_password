@@ -20,12 +20,12 @@ def parse():
     parser.add_argument('-k', '--kmskey', help='KMS Key to use, if not default')
 
     # Retrieve Flags
-    parser.add_argument('-gp', '--get-password', action='store_true', help='Flag to retrieve a password')
+    parser.add_argument('-g', '--get-password', action='store_true', help='Flag to retrieve a password')
     parser.add_argument('-i', '--instanceid', help='instance id of ec2 instance')
 
     # Shared Flags
     parser.add_argument('-p', '--profile', help='aws profile to use')
-    parser.add_argument('-g', '--gac-profile', help='Run gimme-aws-creds against given profile')
+    parser.add_argument('--gac-profile', '--gac', help='Run gimme-aws-creds against given profile')
     parser.add_argument('-r', '--region', help='aws region')
 
     args = parser.parse_args()
