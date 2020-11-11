@@ -14,13 +14,14 @@ def parse():
         description="Script to upload pem files to Secrets Manager, and retrieve passwords for EC2")
 
     # Upload Flags
-    parser.add_argument('-u', '--upload-pem', action='store_true', help='Flag to upload a PEM file')
+    parser.add_argument('-u', '--upload-pem', action='store_true', help='Enable upload of PEM file')
     parser.add_argument('-f', '--filename', help='File to upload')
     parser.add_argument('-d', '--directory', help='File location')
     parser.add_argument('-k', '--kmskey', help='KMS Key to use, if not default')
 
     # Retrieve Flags
-    parser.add_argument('-g', '--get-password', action='store_true', help='Flag to retrieve a password')
+    parser.add_argument('-g', '--get-password', action='store_true',
+                        help='Enable retrieving a password')
     parser.add_argument('-i', '--instanceid', help='instance id of ec2 instance')
 
     # Shared Flags
@@ -73,8 +74,6 @@ def main(args):
         conf.path = path
         conf.kms = kms
         upload.run(conf)
-
-
 
 
 if __name__ == "__main__":

@@ -1,12 +1,15 @@
 # get_ec2_password
 
-# Gets the windows password from a pem file stored in Secrets Manage, reducing the need for locally stored pem files.
+# Gets the windows password from a pem file stored in Secrets Manage,
+# reducing the need for locally stored pem files.
 # rslocum 10/29/2020
 
 import base64
+
 import rsa
 from botocore.exceptions import ClientError
-from get_ec2_password.shared import start_client, sm_error_responses
+
+from get_ec2_password.shared import sm_error_responses, start_client
 
 
 def get_secret(client, pem_file):
@@ -18,8 +21,10 @@ def get_secret(client, pem_file):
     except ClientError as e:
         sm_error_responses(e)
     else:
-        # Secrets Manager decrypts the secret value using the associated KMS CMK
-        # Depending on whether the secret was a string or binary, only one of these fields will be populated
+        # Secrets Manager decrypts the secret value using
+        # the associated KMS CMK.
+        # Depending on whether the secret was a string or binary
+        # only one of these fields will be populated
         if 'SecretString' in get_secret_value_response:
             secret_data = get_secret_value_response['SecretString']
         else:
@@ -53,7 +58,8 @@ def get_pem_name(client, instance_id):
 # get the password from ec2
 def get_ec2_password(client, pem_file, instance_id):
     try:
-        encrypted_password = base64.b64decode((client.get_password_data(InstanceId=instance_id))['PasswordData'])
+        encrypted_password = base64.b64decode(
+            (client.get_password_data(InstanceId=instance_id))['PasswordData'])
         password = rsa.decrypt(encrypted_password, pem_file)
     except ValueError as e:
         raise e
@@ -64,13 +70,13 @@ def get_ec2_password(client, pem_file, instance_id):
 def run(conf):
 
     ec2_session = start_client('ec2', conf.aws_profile, conf.aws_region)
-    sm_session = start_client('secretsmanager', conf.aws_profile, conf.aws_region)
+    sm_session = start_client(
+        'secretsmanager',
+        conf.aws_profile,
+        conf.aws_region
+    )
     pem_file = get_pem_name(ec2_session, conf.instanceid)
     pem_contents = get_secret(sm_session, pem_file)
     ec2_password = get_ec2_password(ec2_session, pem_contents, conf.instanceid)
 
     print(ec2_password)
-
-
-
-

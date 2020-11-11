@@ -1,4 +1,6 @@
-import re, os, boto3
+import re
+import os
+import boto3
 from botocore.exceptions import ProfileNotFound
 
 
@@ -51,6 +53,3 @@ def sm_error_responses(error_response):
             raise Exception(error_response.response)
     else:
         raise Exception(error_response)
-
-
-

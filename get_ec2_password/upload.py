@@ -8,7 +8,6 @@ from botocore.exceptions import ClientError
 from get_ec2_password.shared import start_client, sm_error_responses
 
 
-
 def get_pem_data(location, pem_name):
     try:
         file = location + '/' + pem_name
