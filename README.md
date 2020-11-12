@@ -14,7 +14,7 @@ This is written in Python3
 
 Clone the repository
 ```bash
-git clone https://github.com/rslocum/get_ec2_password
+git clone https://github.com/CloudCheckr/get_ec2_password
 cd get_ec2_password
 ```
 
