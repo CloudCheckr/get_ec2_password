@@ -1,4 +1,6 @@
-import re, os, boto3
+import re
+import os
+import boto3
 from botocore.exceptions import ProfileNotFound
 
 
@@ -30,6 +32,7 @@ def gimme_creds_connection(profile):
 
 
 # Central Location for Error Handling
+# Modified from https://docs.aws.amazon.com/code-samples/latest/catalog/python-secretsmanager-secrets_manager.py.html
 def sm_error_responses(error_response):
     if hasattr(error_response, 'response'):
         if error_response.response['Error']['Code'] == 'InternalServiceErrorException':

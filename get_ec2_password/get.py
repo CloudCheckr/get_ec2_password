@@ -8,7 +8,8 @@ import rsa
 from botocore.exceptions import ClientError
 from get_ec2_password.shared import start_client, sm_error_responses
 
-
+# Connect to Secrets Manager and get the PEM File data
+# Modified from https://docs.aws.amazon.com/code-samples/latest/catalog/python-secretsmanager-secrets_manager.py.html
 def get_secret(client, pem_file):
     secret_name = 'pem/' + pem_file
     try:
@@ -51,6 +52,7 @@ def get_pem_name(client, instance_id):
 
 
 # get the password from ec2
+# From https://quackajack.wordpress.com/2016/12/12/decrypting-aws-windows-passwords/
 def get_ec2_password(client, pem_file, instance_id):
     try:
         encrypted_password = base64.b64decode((client.get_password_data(InstanceId=instance_id))['PasswordData'])
