@@ -54,6 +54,3 @@ def sm_error_responses(error_response):
             raise Exception(error_response.response)
     else:
         raise Exception(error_response)
-
-
-
