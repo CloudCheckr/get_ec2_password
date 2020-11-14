@@ -54,9 +54,10 @@ def get_pem_name(client, instance_id):
         )
     except ClientError as e:
         raise e
-    # digging the value out of the response format
-    pem_name = ((((instance['Reservations'])[0])['Instances'])[0])['KeyName']
-    if pem_name:
+    # Making sure instance data was returned
+    if len(instance['Reservations']) > 0:
+        # digging the value out of the response format
+        pem_name = ((((instance['Reservations'])[0])['Instances'])[0])['KeyName']
         return pem_name
     else:
         raise Exception("Instance " + instance_id + " not found")
