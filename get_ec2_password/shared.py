@@ -1,7 +1,7 @@
 import re
 import os
 import boto3
-from botocore.exceptions import ProfileNotFound
+from botocore.exceptions import ProfileNotFound, ClientError
 
 
 def start_client(service, profile, region):

@@ -41,19 +41,25 @@ def get_secret(client, pem_file):
 
 # get pem key from ec2
 def get_pem_name(client, instance_id):
-    instance = client.describe_instances(
-        Filters=[
-            {
-                'Name': 'instance-id',
-                'Values': [
-                    instance_id,
-                ]
-            },
-        ]
-    )
+    try:
+        instance = client.describe_instances(
+            Filters=[
+                {
+                    'Name': 'instance-id',
+                    'Values': [
+                        instance_id,
+                    ]
+                },
+            ]
+        )
+    except ClientError as e:
+        raise e
     # digging the value out of the response format
     pem_name = ((((instance['Reservations'])[0])['Instances'])[0])['KeyName']
-    return pem_name
+    if pem_name:
+        return pem_name
+    else:
+        raise Exception("Instance " + instance_id + " not found")
 
 
 # get the password from ec2
@@ -62,7 +68,10 @@ def get_ec2_password(client, pem_file, instance_id):
     try:
         encrypted_password = base64.b64decode(
             (client.get_password_data(InstanceId=instance_id))['PasswordData'])
-        password = rsa.decrypt(encrypted_password, pem_file)
+        if encrypted_password:
+            password = rsa.decrypt(encrypted_password, pem_file)
+        else:
+            raise Exception("No Password returned, Instance may not be ready yet")
     except ValueError as e:
         raise e
 
