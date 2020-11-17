@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: PrepareReg Names
-        run: echo ::set-env name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
+        run: echo IMAGE_REPOSITORY=$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]') >> $GITHUB_ENV
       - uses: docker/setup-buildx-action@v1
       - name: Checkout Code
         uses: actions/checkout@v2
@@ -30,4 +30,4 @@ jobs:
           platforms: linux/amd64
           push: true
           tags: |
-            ghcr.io/${{ env.IMAGE_REPOSITORY }}/get_ec2_password:latest
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}:latest
