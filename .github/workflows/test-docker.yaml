@@ -1,0 +1,24 @@
+name: test docker
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    # Name the Job
+    name: Build docker image
+    # Set the agent to run on
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: false
+          tags: |
+            ghcr.io/${{ github.repository_owner }}/get_ec2_password:latest
