@@ -11,6 +11,8 @@ jobs:
     # Set the agent to run on
     runs-on: ubuntu-latest
     steps:
+      - name: PrepareReg Names
+        run: echo ::set-env name=IMAGE_REPOSITORY::$(echo ${{ github.repository }} | tr '[:upper:]' '[:lower:]')
       - name: Checkout Code
         uses: actions/checkout@v2
       - name: Build and push
@@ -21,4 +23,4 @@ jobs:
           platforms: linux/amd64
           push: false
           tags: |
-            ghcr.io/${{ github.repository_owner }}/get_ec2_password:latest
+            ghcr.io/${{ env.IMAGE_REPOSITORY }}/get_ec2_password:latest
